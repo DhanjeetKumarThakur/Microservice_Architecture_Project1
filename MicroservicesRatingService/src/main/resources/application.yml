@@ -1,0 +1,40 @@
+server:
+  port: 8083
+  
+spring:
+  datasource:
+    url: jdbc:sqlite:MS_RatingService.db
+    driver-class-name: org.sqlite.JDBC
+    username: 
+    password: 
+  application:
+    name: RATING-SERVICE
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+    #database-platform: org.hibernate.community.dialect.SQLiteDialect
+  config:
+    import: optional:configserver:http://localhost:8085  #localhost of Config Server
+   
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka
+#    
+
+
+  
+#OKTA Configuration for API Gateway
+okta:
+  oauth2:
+    issuer: https://dev-14493236.okta.com/oauth2/default
+    audience: api://default     
+        
