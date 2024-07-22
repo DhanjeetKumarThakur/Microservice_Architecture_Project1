@@ -1,0 +1,116 @@
+server:
+  port: 8082
+  
+
+spring:
+  datasource:
+    url: jdbc:sqlite:MS_UserService.db
+    driver-class-name: org.sqlite.JDBC
+    username: 
+    password: 
+  application:
+    name: USER-SERVICE
+  config:
+    import: optional:configserver:http://localhost:8085  #localhost of Config Server
+#spring.config.import:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+    #database-platform: org.hibernate.community.dialect.SQLiteDialect
+    
+    
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-14493236.okta.com/oauth2/default
+      client:
+        registration:
+          my-internal-client:   #This is user define so you can name it anything
+            provider: okta
+            authorization-grant-type: client_credentials
+            scope: internal 
+            client-id: 0oaigjofsxDfm3K5l5d7
+            client-secret: hOwBML0j6iek00MUKj9utqmzcJUOvxgE6NMraQvdVYkAKXSI96fVZQfEZilm5DdF
+
+#spring.security.oauth2.client.provider
+        provider:
+          okta: 
+            issuer-uri: https://dev-14493236.okta.com/oauth2/default
+            
+          
+    
+
+
+#  profiles:
+#    active: prod
+    
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka
+
+#The above configurations will be picked from Config Server
+      
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  #endpoints.web.exposure.include:
+     
+  endpoint:
+    health:
+      show-details: always
+      
+      
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:           #This is circuitBreaker name
+        register-health-indicator: true
+        event-consumer-buffer-size: 10  #BufferSize 
+        failure-rate-threshold: 50      #Threshold value 
+        minimum-number-of-calls: 5      #Minimum no of calls before moving from Closed to Open state
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 6s  #Waiting duration before moving from Open state to Half_Open state
+        permitted-number-of-calls-in-half-open-state: 3 #No of calls made in half_open_state 
+        sliding-window-size: 10  
+#sliding window is mechanism in circuit breaker. They are basically two types of Time based and Count base
+        sliding-window-type: COUNT_BASED
+        
+  retry:
+    instances:
+      ratingHotelService:
+        max-attempts: 3        #max attempts
+        wait-duration: 5s      #wait duration before moving to fallback Method
+        
+
+  ratelimiter:
+    instances:
+      userRateLimiter:
+        limit-refresh-period: 4s  #limit refresh period
+        limit-for-period: 2       #limits of hits in refresh
+        timeout-duration: 2s      #timeout duration in 
+ 
+logging:
+  level:
+    io.github.resilience4j.circuitbreaker: DEBUG
+  
+#OKTA Configuration for API Gateway
+okta:
+  oauth2:
+    issuer: https://dev-14493236.okta.com/oauth2/default
+    audience: api://default     
+        
